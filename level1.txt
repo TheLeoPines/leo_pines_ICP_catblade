@@ -23,4 +23,3 @@
 1..............................1
 11111111111111111111111111111111
 
-#The map for the Map class to be called in main.py

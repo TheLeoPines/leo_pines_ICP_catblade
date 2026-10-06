@@ -87,14 +87,28 @@ class Game:
                 if self.playing:
                     self.playing = False
                 self.running = False
+
+    def draw_text(self,text,size,color,x,y):
+        font_name=pg.font.match_font('arial')
+        font=pg.font.Font(font_name,size)
+        text_surface=font.render(text,True,color)
+        text_rect=text_surface.get_rect()
+        text_rect.midtop=(x,y)
+        self.screen.blit(text_surface,text_rect)
+    
     #Calculates next frame it renders and updates the screen with the new frame.
     def update(self):
         self.all_sprites.update()
     #Output of filling out the sprites with color
     def draw(self):
+        #This order matters as the first things are on the botton because they are the first to be drawn
+        #The last lines are on the top
         self.screen.fill(BGCOLOR)
         self.all_sprites.draw(self.screen)
+        self.draw_text("Frames per second:"+str(floor(1/self.dt)),24,WHITE,WIDTH/2,HEIGHT/4)
         pg.display.flip()
+
+   
 #This runs the game
 if __name__ == "__main__":
     g=Game()
