@@ -156,6 +156,7 @@ class Mob(Sprite):
             Sprite.__init__(self, self.groups)
             self.game=game
             self.evilcat=Spritesheet(path.join(self.game.img_dir,"evilcat.png"))
+            self.cutycat=Spritesheet(path.join(self.game.img_dir,"cutycat.jpg"))
             self.last_update=0
             self.current_frame=0
             self.load_images() #To load images, literally
@@ -183,11 +184,29 @@ class Mob(Sprite):
             self.rect.bottom = bottom
             #Position of images
     def load_images(self):
-        self.idle_frames = [self.evilcat.get_image(0,0,TILESIZE, TILESIZE),
-                            self.evilcat.get_image(TILESIZE,0,TILESIZE, TILESIZE)
+        self.idle_frames = [self.evilcat.get_image(0,0,TILESIZE, TILESIZE), #Define spritesheet
+                            self.evilcat.get_image(TILESIZE,0,TILESIZE, TILESIZE) #Define spritesheet
                             ]
-    
-            
+        self.run_frames= [self.cutycat.get_image(0,0,TILESIZE, TILESIZE), #Define spritesheet
+                          self.cutycat.get_image(TILESIZE,0,TILESIZE,TILESIZE) #Define spritesheet
+                          ]
+
+    def chase(self, obj): #Will finish soon
+        if self.pos.x < obj.pos.x:
+            self.vel.x = self.speed
+            self.dir = "right"
+        elif self.pos.x > obj.pos.x:
+            self.vel.x = -self.speed
+            self.dir = "left"
+        else:
+            self.vel.x = 0
+        if self.pos.y < obj.pos.y:
+            self.vel.y = self.speed
+        elif self.pos.y > obj.pos.y:
+            self.vel.y = -self.speed
+        else:
+            self.vel.y = 0
+
     #Updating velocity
     def update(self):
         #Thanks pygame for the .right
@@ -200,7 +219,6 @@ class Mob(Sprite):
         self.rect.y=self.y
         self.animate()
         
-        #Collisions for mob (SOON)
         
 
          

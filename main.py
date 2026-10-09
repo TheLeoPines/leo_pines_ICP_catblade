@@ -19,7 +19,15 @@ Process: cursor position, position of the player, physics.
 
 Output: Graphics - things are drawn, sounds: jump, power up, walking, haptics.
 
+GAME: Snake Game
 
+GOALS: Eat apples, gain as much apples as possible, and survive.
+
+RULES: You cannot go through walls, teleport to apples, or not start from 0.
+
+FEEDBACK: Will stop the game and put a collided face one bumping into a wall.
+
+FREEDOM: You can go any direction you want.
 
 '''
 #Making the class game that uses all the mechanincs to make it
