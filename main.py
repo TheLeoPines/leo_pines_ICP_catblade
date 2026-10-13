@@ -71,7 +71,7 @@ class Game:
         for row, tiles in enumerate(self.map.data):
             for col, tile, in enumerate(tiles):
                 if tile=='P':
-                    Player(self,col, row)#For player is map
+                    self.player=Player(self,col, row)#For player is map
 
 
                 

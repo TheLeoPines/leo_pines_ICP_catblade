@@ -169,6 +169,19 @@ class Mob(Sprite):
             self.y=y*TILESIZE
             self.rect.x=self.x
             self.rect.y=self.y
+            self.speed = 100
+            self.vel = vec(0,0)
+            self.pos = vec(x*TILESIZE,y*TILESIZE)
+            self.x = x*TILESIZE
+            self.y = y*TILESIZE
+            self.rect.x = self.x
+            self.rect.y = self.y
+            self.vel=vec(0,0)
+            self.pos=vec(x*TILESIZE,y*TILESIZE)
+            self.dir = "none"
+            self.last_update = 0
+            self.current_frame = 0
+            self.hit_rect = MOB_HIT_RECT
             print("mob initialized")
             print(self.rect.x)
             print(self.rect.y)
@@ -190,7 +203,7 @@ class Mob(Sprite):
         self.run_frames= [self.cutycat.get_image(0,0,TILESIZE, TILESIZE), #Define spritesheet
                           self.cutycat.get_image(TILESIZE,0,TILESIZE,TILESIZE) #Define spritesheet
                           ]
-
+    # uses autocomplete by creating a chase method using pos vectors and obj as a parameter
     def chase(self, obj): #Will finish soon
         if self.pos.x < obj.pos.x:
             self.vel.x = self.speed
@@ -210,15 +223,25 @@ class Mob(Sprite):
     #Updating velocity
     def update(self):
         #Thanks pygame for the .right
-        if self.rect.right>WIDTH or self.rect.x<0:
-             self.speed*=-1
-             self.y+=TILESIZE
+        # if self.rect.right>WIDTH or self.rect.x<0:
+        #      self.speed*=-1
+        #      self.y+=TILESIZE
         #Animation
-        self.x+=self.vx*self.game.dt*self.speed
-        self.rect.x=self.x
-        self.rect.y=self.y
+        # self.x+=self.vx*self.game.dt*self.speed
+        # self.rect.x=self.x
+        # self.rect.y=self.y
         self.animate()
-        
+        #Calling Chase Method:
+        if self.game.player:
+            self.chase(self.game.player)
+            self.rect.center = self.pos
+            self.pos += self.vel * self.game.dt
+            self.hit_rect.centerx = self.pos.x
+            collide_with_walls(self, self.game.all_walls, 'x')
+            self.hit_rect.centery = self.pos.y
+            collide_with_walls(self, self.game.all_walls, 'y')
+            self.rect.center = self.hit_rect.center
+            
         
 
          
