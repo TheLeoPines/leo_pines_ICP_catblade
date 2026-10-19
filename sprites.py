@@ -66,6 +66,10 @@ class Player(Sprite):
          # animation stuff
         self.last_update = 0
         self.current_frame = 0
+        self.dir = "none"
+        self.coins = 0
+        print('player instantiated')
+        print(self.pos)
         # self.vx, self.vy=0,0
         # self.x=x*TILESIZE
         # self.y=y*TILESIZE
@@ -121,6 +125,9 @@ class Player(Sprite):
     def update(self):
         #Outputing the position of the player and updating the game
         self.get_keys()
+        hits=pg.sprite.spritecollide(self,self.game.all_coins,True)
+        if hits:
+            self.coins=+1
         self.animate()
         self.rect.center=self.pos
         self.pos+=self.vel*self.game.dt
@@ -149,7 +156,27 @@ class Wall(Sprite):
             print("wall initialized")
             print(self.rect.x)
             print(self.rect.y)
-#Making a Mob class to input a mob sprite when called in main.py
+
+#Making a coin class since why not:
+class Coin(Sprite):
+     #Making a Mob class to input a mob sprite when called in main.py
+     def __init__(self, game, x, y):
+        self.groups = game.all_sprites, game.all_coins
+        Sprite.__init__(self, self.groups)
+        self.game = game
+        self.image = pg.Surface((TILESIZE, TILESIZE))
+        # self.image.fill(RED)
+        pg.draw.circle(self.image, (YELLOW), (16, 16), 16)
+        self.rect = self.image.get_rect()
+        self.image.set_colorkey(BLACK)
+        self.x = x*TILESIZE
+        self.y = y*TILESIZE
+        self.rect.x = self.x
+        self.rect.y = self.y
+        # print("wall initialized")
+        print(self.rect.x)
+        print(self.rect.y)
+
 class Mob(Sprite):
     #runs first and provides for the first attributes of the mob class
     def __init__(self,game,x,y):
@@ -179,6 +206,7 @@ class Mob(Sprite):
             self.rect.x = self.x
             self.rect.y = self.y
             self.vel=vec(0,0)
+            self.coins=0
             self.pos=vec(x*TILESIZE,y*TILESIZE)
             self.dir = "none"
             self.last_update = 0
