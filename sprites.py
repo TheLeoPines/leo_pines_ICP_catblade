@@ -102,7 +102,7 @@ class Player(Sprite):
         #     self.vx*=0.7071
         #     self.vy*=0.7071
 
-
+    #Animation of the player
     def animate(self):
         # use the time element to get now
         now = pg.time.get_ticks()
@@ -151,6 +151,7 @@ class Wall(Sprite):
             print(self.rect.y)
 #Making a Mob class to input a mob sprite when called in main.py
 class Mob(Sprite):
+    #runs first and provides for the first attributes of the mob class
     def __init__(self,game,x,y):
             self.groups=game.all_sprites, game.all_mobs
             Sprite.__init__(self, self.groups)
@@ -169,6 +170,7 @@ class Mob(Sprite):
             self.y=y*TILESIZE
             self.rect.x=self.x
             self.rect.y=self.y
+            #The position of the mob when going through frames, good for the collision and chase method
             self.speed = 100
             self.vel = vec(0,0)
             self.pos = vec(x*TILESIZE,y*TILESIZE)
@@ -185,6 +187,7 @@ class Mob(Sprite):
             print("mob initialized")
             print(self.rect.x)
             print(self.rect.y)
+    #Animation of the mob
     def animate(self):
         # use the time element to get now
         now = pg.time.get_ticks()
@@ -196,6 +199,7 @@ class Mob(Sprite):
             self.rect = self.image.get_rect()
             self.rect.bottom = bottom
             #Position of images
+    #Responsible for making images, sounds, and text available for use
     def load_images(self):
         self.idle_frames = [self.evilcat.get_image(0,0,TILESIZE, TILESIZE), #Define spritesheet
                             self.evilcat.get_image(TILESIZE,0,TILESIZE, TILESIZE) #Define spritesheet
@@ -220,7 +224,7 @@ class Mob(Sprite):
         else:
             self.vel.y = 0
 
-    #Updating velocity
+    #Updates the Mob class
     def update(self):
         #Thanks pygame for the .right
         # if self.rect.right>WIDTH or self.rect.x<0:
