@@ -46,7 +46,9 @@ class Game:
     def load_data(self,map):
         self.game_dir=path.dirname(__file__)
         self.img_dir=path.join(self.game_dir, 'images')
+        #Sound handling
         self.snd_dir=path.join(self.game_dir,'audio')
+        self.pickup_snd=pg.mixer.Sound(path.join(self.snd_dir,"Picked_Coin_Echo.wav"))
         self.map=Map(path.join(self.game_dir,map))
 
 
@@ -75,6 +77,9 @@ class Game:
             for col, tile, in enumerate(tiles):
                 if tile=='P':
                     self.player=Player(self,col, row)#For player is map
+        #Background music
+        pg.mixer.music.load(path.join(self.snd_dir,"an_untold_legend_v2.wav"))
+        pg.mixer.music.play(loops=-1)
 
 
                 
@@ -116,6 +121,7 @@ class Game:
         #The last lines are on the top
         self.screen.fill(BGCOLOR)
         self.all_sprites.draw(self.screen)
+        #Displays the text and updates when player collects a coin
         self.draw_text(f"Frames per second:{1/self.dt}", 24, WHITE, WIDTH/2, HEIGHT/4)
         self.draw_text(f"Coins:{self.player.coins}", 24, WHITE, WIDTH/2, HEIGHT/7)
         pg.display.flip()

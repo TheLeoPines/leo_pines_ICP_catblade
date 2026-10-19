@@ -127,7 +127,9 @@ class Player(Sprite):
         self.get_keys()
         hits=pg.sprite.spritecollide(self,self.game.all_coins,True)
         if hits:
-            self.coins=+1
+            self.coins += 1
+            #Sound will play when coin is hit
+            self.game.pickup_snd.play()
         self.animate()
         self.rect.center=self.pos
         self.pos+=self.vel*self.game.dt
@@ -161,11 +163,12 @@ class Wall(Sprite):
 class Coin(Sprite):
      #Making a Mob class to input a mob sprite when called in main.py
      def __init__(self, game, x, y):
+        #Making the coin group
         self.groups = game.all_sprites, game.all_coins
         Sprite.__init__(self, self.groups)
         self.game = game
         self.image = pg.Surface((TILESIZE, TILESIZE))
-        # self.image.fill(RED)
+        #The shape of the coin itself and color
         pg.draw.circle(self.image, (YELLOW), (16, 16), 16)
         self.rect = self.image.get_rect()
         self.image.set_colorkey(BLACK)
@@ -173,7 +176,6 @@ class Coin(Sprite):
         self.y = y*TILESIZE
         self.rect.x = self.x
         self.rect.y = self.y
-        # print("wall initialized")
         print(self.rect.x)
         print(self.rect.y)
 
