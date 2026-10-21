@@ -42,20 +42,38 @@ class Game:
         self.running=True 
         self.playing=True
         self.clock=pg.time.Clock()
-
+        self.high_score=0
+        self.score=0
+    #Loads external game files like images and audios and etc...
     def load_data(self,map):
         self.game_dir=path.dirname(__file__)
+        self.game_save_file = path.join(self.game_dir, "highscore.txt")
         self.img_dir=path.join(self.game_dir, 'images')
         #Sound handling
         self.snd_dir=path.join(self.game_dir,'audio')
         self.pickup_snd=pg.mixer.Sound(path.join(self.snd_dir,"Picked_Coin_Echo.wav"))
         self.map=Map(path.join(self.game_dir,map))
+        #Tries to open a new file unless already made
+        try:
+            with open(self.game_save_file,'x',encoding="utf-8") as file:
+                file.write("Hello!")
+            print("file created succesfully!")
 
+        except FileExistsError:
+            print("File already exists")
+        #Tries to save score to new made file and if nothing to read then set to 0 until updated
+        with open(self.game_save_file,'r') as file:
+            try:
+                self.high_score=int(file.read())
+            except:
+                # self.high_score=0
+                print("high score set to zero")
 
     #Outputing a sprite/a character to controlled and outputing a wall and mob.
     def new(self):
         self.load_data('level1.txt')
         print(self.map.data)
+        #Creates sprite groups to organize and update all game objects together
         self.all_sprites=pg.sprite.Group()
         self.all_walls=pg.sprite.Group()
         self.all_mobs=pg.sprite.Group()
@@ -99,11 +117,17 @@ class Game:
    #Output of the events of the drawings and quits when user is not playing.
     def events(self):
         for event in pg.event.get():
-            if event.type == pg.QUIT: 
+            if event.type == pg.QUIT:
+                if self.score>self.high_score: 
+                    with open(path.join(self.game_dir,self.game_save_file),'w') as f:
+                        f.write(str(self.score))
+
+                #To quit the game
                 if self.playing:
                     self.playing = False
+                    
                 self.running = False
-
+    #Text attributes
     def draw_text(self,text,size,color,x,y):
         font_name=pg.font.match_font('arial')
         font=pg.font.Font(font_name,size)
@@ -124,6 +148,8 @@ class Game:
         #Displays the text and updates when player collects a coin
         self.draw_text(f"Frames per second:{1/self.dt}", 24, WHITE, WIDTH/2, HEIGHT/4)
         self.draw_text(f"Coins:{self.player.coins}", 24, WHITE, WIDTH/2, HEIGHT/7)
+        self.draw_text(f"Score:{self.score}", 24, WHITE, WIDTH/2, HEIGHT/9)
+        self.draw_text(f"High Score:{self.high_score}", 24, WHITE, WIDTH/2, HEIGHT/12)
         pg.display.flip()
 
    

@@ -106,7 +106,7 @@ class Player(Sprite):
         #     self.vx*=0.7071
         #     self.vy*=0.7071
 
-
+    #Giving the image animation
     def animate(self):
         # use the time element to get now
         now = pg.time.get_ticks()
@@ -122,14 +122,15 @@ class Player(Sprite):
         self.idle_frames = [self.spritesheet.get_image(0,0,TILESIZE, TILESIZE),
                             self.spritesheet.get_image(TILESIZE,0,TILESIZE, TILESIZE)
                             ]
+    #Outputing the position of the player and updating the game
     def update(self):
-        #Outputing the position of the player and updating the game
         self.get_keys()
         hits=pg.sprite.spritecollide(self,self.game.all_coins,True)
         if hits:
             self.coins += 1
             #Sound will play when coin is hit
             self.game.pickup_snd.play()
+            self.game.score += 1
         self.animate()
         self.rect.center=self.pos
         self.pos+=self.vel*self.game.dt
