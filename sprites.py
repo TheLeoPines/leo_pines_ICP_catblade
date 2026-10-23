@@ -3,6 +3,8 @@ from settings import * #Importing from a different made file to access on this f
 from pygame.sprite import Sprite #Importing the sprite command from pygame as "Sprite"
 from utils import * #Importing from a different made file to access on this file.
 
+from random import randint
+
 from os import path #using windows terminal
 
 vec=pg.math.Vector2 #Velocity calculations
@@ -127,6 +129,8 @@ class Player(Sprite):
         self.get_keys()
         hits=pg.sprite.spritecollide(self,self.game.all_coins,True)
         if hits:
+            for i in range(10): # Run a loop 10 times to generate multiple particles once a coin is hit.
+                Particle(self.game, hits[0].x, hits[0].y)
             self.coins += 1
             #Sound will play when coin is hit
             self.game.pickup_snd.play()
@@ -142,7 +146,7 @@ class Player(Sprite):
         
 
 
-#Making a class sprite to call in main.py to make the wall.
+#Making a wall class to call in main.py to make the wall.
 class Wall(Sprite):
     def __init__(self,game,x,y):
             self.groups=game.all_sprites, game.all_walls
@@ -156,13 +160,43 @@ class Wall(Sprite):
             self.y=y*TILESIZE
             self.rect.x=self.x
             self.rect.y=self.y
-            print("wall initialized")
+            # print("wall initialized")
+            # print(self.rect.x)
+            # print(self.rect.y)
+# Making a particle class to call in main.py to make the particles.
+class Particle(Sprite):
+    def __init__(self,game,x,y):
+            self.groups=game.all_sprites, game.all_particles #Makes a sprite group for particles
+            Sprite.__init__(self, self.groups)
+            self.game=game
+            #Scales the particles by dividing it by 8 and filling it with a white color.
+            self.image=pg.Surface((TILESIZE/8,TILESIZE/8))
+            self.image.fill(WHITE)
+            self.rect=self.image.get_rect()
+            self.vx, self.vy=0,0
+            self.x=x
+            self.y=y
+            #Sets particle speed
+            self.speed=20
+            self.rect.x=self.x
+            self.rect.y=self.y
+            #A cooldown timer that ticks when the particle is generated
+            self.countdown=Cooldown(5000)
+            self.countdown.event_time=floor(pg.time.get_ticks()/1000)
             print(self.rect.x)
             print(self.rect.y)
+            print(str(len(self.game.all_particles)))
+    # Checks whether after a certain amount of time it will kill the particle and so it scatters around.
+    def update(self):
+        self.countdown.ticking()
+        self.rect.x+=self.speed*randint(-5,5)
+        self.rect.y+=self.speed*randint(-5,5)
+        if self.countdown.delta>3:
+            self.kill()
 
 #Making a coin class since why not:
 class Coin(Sprite):
-     #Making a Mob class to input a mob sprite when called in main.py
+     #Making a Mob class to input a coin sprite when called in main.py
      def __init__(self, game, x, y):
         #Making the coin group
         self.groups = game.all_sprites, game.all_coins
@@ -179,12 +213,13 @@ class Coin(Sprite):
         self.rect.y = self.y
         print(self.rect.x)
         print(self.rect.y)
-
+#Making a Mob class to input a mob sprite when called in main.py
 class Mob(Sprite):
     def __init__(self,game,x,y):
-            self.groups=game.all_sprites, game.all_mobs
+            self.groups=game.all_sprites, game.all_mobs #Sprite group for mob
             Sprite.__init__(self, self.groups)
             self.game=game
+            #Inputs the images for the mob
             self.evilcat=Spritesheet(path.join(self.game.img_dir,"evilcat.png"))
             self.cutycat=Spritesheet(path.join(self.game.img_dir,"cutycat.jpg"))
             self.last_update=0
@@ -193,6 +228,7 @@ class Mob(Sprite):
             self.image=pg.Surface((TILESIZE,TILESIZE))
             self.image.fill(RED)
             self.rect=self.image.get_rect()
+            #Speed and position of the mob
             self.speed=1
             self.vx, self.vy=500,0
             self.x=x*TILESIZE
@@ -228,14 +264,14 @@ class Mob(Sprite):
             self.rect.bottom = bottom
             #Position of images
     def load_images(self):
-        self.idle_frames = [self.evilcat.get_image(0,0,TILESIZE, TILESIZE), #Define spritesheet
-                            self.evilcat.get_image(TILESIZE,0,TILESIZE, TILESIZE) #Define spritesheet
+        self.idle_frames = [self.evilcat.get_image(0,0,TILESIZE, TILESIZE), #Defines spritesheet
+                            self.evilcat.get_image(TILESIZE,0,TILESIZE, TILESIZE) #Defines spritesheet
                             ]
-        self.run_frames= [self.cutycat.get_image(0,0,TILESIZE, TILESIZE), #Define spritesheet
-                          self.cutycat.get_image(TILESIZE,0,TILESIZE,TILESIZE) #Define spritesheet
+        self.run_frames= [self.cutycat.get_image(0,0,TILESIZE, TILESIZE), #Defines spritesheet
+                          self.cutycat.get_image(TILESIZE,0,TILESIZE,TILESIZE) #Defines spritesheet
                           ]
     # uses autocomplete by creating a chase method using pos vectors and obj as a parameter
-    def chase(self, obj): #Will finish soon
+    def chase(self, obj): 
         if self.pos.x < obj.pos.x:
             self.vel.x = self.speed
             self.dir = "right"

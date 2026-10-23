@@ -78,6 +78,7 @@ class Game:
         self.all_walls=pg.sprite.Group()
         self.all_mobs=pg.sprite.Group()
         self.all_coins = pg.sprite.Group()
+        self.all_particles=pg.sprite.Group()
     
       
 #Enumarating from map to titles to make player and walls as a tile.
