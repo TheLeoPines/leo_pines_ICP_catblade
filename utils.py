@@ -28,20 +28,19 @@ class Spritesheet:
         return image
 # Making a Cooldown class for time and cooldown for the object.
 class Cooldown:
-    def __init__(self,time):
-        #Creating the starting time
-        self.start_time=0
-        self.time=time
-        self.current_time=self.time
-    #Creating the cooldown
+    def __init__(self):
+        #Creating the starting times
+        self.event_time=0
+        self.current_time=0
+        self.delta=0
+    #Creating the cooldown as ticks
     def ticking(self):
         self.current_time=floor((pg.time.get_ticks())/1000)
-        self.delta=self.current_time=self.event_time
+        #When assigned to equal it caused an error due to delta needing difference.
+        self.delta=self.current_time-self.event_time 
     def start(self):
         self.start_time=pg.time.get_ticks()
     def ready(self):
         self.current_time=pg.time.get_ticks()
 
-        if self.current_time-self.start_time>=self.time:
-            return True
-        return False
+    

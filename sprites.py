@@ -129,7 +129,7 @@ class Player(Sprite):
         self.get_keys()
         hits=pg.sprite.spritecollide(self,self.game.all_coins,True)
         if hits:
-            for i in range(10): # Run a loop 10 times to generate multiple particles once a coin is hit.
+            for i in range(100): # Run a loop 100 times to generate multiple particles once a coin is hit.
                 Particle(self.game, hits[0].x, hits[0].y)
             self.coins += 1
             #Sound will play when coin is hit
@@ -173,15 +173,16 @@ class Particle(Sprite):
             self.image=pg.Surface((TILESIZE/8,TILESIZE/8))
             self.image.fill(WHITE)
             self.rect=self.image.get_rect()
-            self.vx, self.vy=0,0
-            self.x=x
-            self.y=y
-            #Sets particle speed
-            self.speed=20
-            self.rect.x=self.x
-            self.rect.y=self.y
+            self.rect.x = x
+            self.rect.y = y
+            self.vel=vec(randint(-180,180),randint(-180,180))#Gives randomized vector
+            self.pos=vec(x,y)
+            #Sets particle speed randomly
+            self.speed=randint(-5,10)
+            if self.speed==0:
+                self.speed=2
             #A cooldown timer that ticks when the particle is generated
-            self.countdown=Cooldown(5000)
+            self.countdown=Cooldown()
             self.countdown.event_time=floor(pg.time.get_ticks()/1000)
             print(self.rect.x)
             print(self.rect.y)
@@ -191,7 +192,8 @@ class Particle(Sprite):
         self.countdown.ticking()
         self.rect.x+=self.speed*randint(-5,5)
         self.rect.y+=self.speed*randint(-5,5)
-        if self.countdown.delta>3:
+        #If countdown is bigger than giving time one initiated then it kills the particle.
+        if self.countdown.delta>0.5:
             self.kill()
 
 #Making a coin class since why not:
