@@ -1,4 +1,4 @@
-import pygame as pg
+import pygame as pg #Importing pygame as "pg"
 #Constants used throughout all the other files to make the game
 WIDTH=1024
 HEIGHT=768
@@ -16,6 +16,9 @@ BLACK=(0,0,0)
 YELLOW=(255,255,0)
 
 #Player settings
-PLAYER_SPEED=300
+PLAYER_SPEED=5
 PLAYER_HIT_RECT=pg.Rect(0,0,TILESIZE-5,TILESIZE-5)
+PLAYER_FRIC=-0.1
+
+#Mob Settings
 MOB_HIT_RECT = pg.Rect(0,0, TILESIZE-5, TILESIZE-5)

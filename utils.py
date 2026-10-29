@@ -1,6 +1,6 @@
 import pygame as pg #Importing pygame as pg
 from settings import *#Importing setttings.py
-from math import floor
+from math import floor #Importing math
 
 #Making a map class to make the map when called in main.py
 class Map:

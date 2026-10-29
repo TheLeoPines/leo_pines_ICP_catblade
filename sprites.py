@@ -3,7 +3,7 @@ from settings import * #Importing from a different made file to access on this f
 from pygame.sprite import Sprite #Importing the sprite command from pygame as "Sprite"
 from utils import * #Importing from a different made file to access on this file.
 
-from random import randint
+from random import randint #Importing randomizer
 
 from os import path #using windows terminal
 
@@ -64,12 +64,14 @@ class Player(Sprite):
         self.rect=self.image.get_rect()
         self.hit_rect=PLAYER_HIT_RECT
         self.vel=vec(0,0)
+        self.acc=vec(0,0)#Acceleration, yayayaya!
         self.pos=vec(x*TILESIZE,y*TILESIZE)
          # animation stuff
         self.last_update = 0
         self.current_frame = 0
         self.dir = "none"
         self.coins = 0
+        self.jumping=False
         print('player instantiated')
         print(self.pos)
         # self.vx, self.vy=0,0
@@ -80,24 +82,25 @@ class Player(Sprite):
         #reset v to zero
         #Listen for events specific to keys
         #change velocity based on which key is
-        self.vel=vec(0,0) 
+        # self.vel=vec(0,0) 
         # self.x, self.vy=0,0
         keys=pg.key.get_pressed()
         if keys[pg.K_LEFT] or keys[pg.K_a]: #Clicking a goes left
-            print("trying to go left...")
-            self.vel.x=-PLAYER_SPEED
+            self.acc.x=-PLAYER_SPEED
+            # self.vel.x=-PLAYER_SPEED
             # self.vx=-PLAYER_SPEED
         if keys[pg.K_RIGHT] or keys[pg.K_d]:#Clicking d goes right
-            print("trying to go right...")
-            self.vel.x=PLAYER_SPEED
+            self.dir="right"
+            self.acc.x=PLAYER_SPEED
+            # self.vel.x=PLAYER_SPEED
             # self.vx=PLAYER_SPEED
         if keys[pg.K_UP] or keys[pg.K_w]:#Clicking w goes up
-            print("trying to go up...")
-            self.vel.y=-PLAYER_SPEED
+            self.acc.y=-PLAYER_SPEED
+            # self.vel.y=-PLAYER_SPEED
             # self.vy=-PLAYER_SPEED
         if keys[pg.K_DOWN] or keys[pg.K_s]:#Clicking s goes down
-            print("trying to go down...")
-            self.vel.y=PLAYER_SPEED
+            self.acc.y=PLAYER_SPEED
+            # self.vel.y=PLAYER_SPEED
             # self.vy=PLAYER_SPEED
         #Check to see if player is moving diagonal
         if self.vel.x!=0 and self.vel.y!=0:
@@ -125,8 +128,14 @@ class Player(Sprite):
                             self.spritesheet.get_image(TILESIZE,0,TILESIZE, TILESIZE)
                             ]
     #Outputing the position of the player and updating the game
-    def update(self):
+    def update(self):#Gravity
+        self.acc=vec(0,9.8)
         self.get_keys()
+        self.acc.x+=self.vel.x*PLAYER_FRIC
+        self.acc.y+=self.vel.y*PLAYER_FRIC
+        self.rect.center=self.pos
+        self.pos+=self.vel+0.5*self.acc
+        self.vel+=self.acc
         hits=pg.sprite.spritecollide(self,self.game.all_coins,True)
         if hits:
             for i in range(100): # Run a loop 100 times to generate multiple particles once a coin is hit.
@@ -136,8 +145,7 @@ class Player(Sprite):
             self.game.pickup_snd.play()
             self.game.score += 1
         self.animate()
-        self.rect.center=self.pos
-        self.pos+=self.vel*self.game.dt
+        # self.pos+=self.vel*self.game.dt
         self.hit_rect.centerx=self.pos.x
         collide_with_walls(self,self.game.all_walls,'x')
         self.hit_rect.centery=self.pos.y
