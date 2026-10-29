@@ -173,8 +173,6 @@ class Particle(Sprite):
             self.image=pg.Surface((TILESIZE/8,TILESIZE/8))
             self.image.fill(WHITE)
             self.rect=self.image.get_rect()
-            self.rect.x = x
-            self.rect.y = y
             self.vel=vec(randint(-180,180),randint(-180,180))#Gives randomized vector
             self.pos=vec(x,y)
             #Sets particle speed randomly
@@ -182,19 +180,22 @@ class Particle(Sprite):
             if self.speed==0:
                 self.speed=2
             #A cooldown timer that ticks when the particle is generated
-            self.countdown=Cooldown()
+            self.countdown=Timer()
             self.countdown.event_time=floor(pg.time.get_ticks()/1000)
             print(self.rect.x)
             print(self.rect.y)
             print(str(len(self.game.all_particles)))
     # Checks whether after a certain amount of time it will kill the particle and so it scatters around.
     def update(self):
-        self.countdown.ticking()
-        self.rect.x+=self.speed*randint(-5,5)
-        self.rect.y+=self.speed*randint(-5,5)
+        # self.countdown.ticking()
+        self.pos+=self.vel*self.speed*self.game.dt
+        self.rect.center = self.pos
+        # self.rect.x+=self.speed*randint(-5,5)
+        # self.rect.y+=self.speed*randint(-5,5)
         #If countdown is bigger than giving time one initiated then it kills the particle.
-        if self.countdown.delta>0.5:
+        if self.countdown.get_delta()>0.5:
             self.kill()
+            print("NOOO:(")
 
 #Making a coin class since why not:
 class Coin(Sprite):

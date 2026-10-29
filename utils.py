@@ -26,21 +26,13 @@ class Spritesheet:
         new_image=pg.transform.scale(image, (width,height))
         image=new_image
         return image
-# Making a Cooldown class for time and cooldown for the object.
-class Cooldown:
+    
+# Making a Timer class for time and cooldown for the object.
+class Timer:
     def __init__(self):
         #Creating the starting times
-        self.event_time=0
-        self.current_time=0
-        self.delta=0
-    #Creating the cooldown as ticks
-    def ticking(self):
-        self.current_time=floor((pg.time.get_ticks())/1000)
-        #When assigned to equal it caused an error due to delta needing difference.
-        self.delta=self.current_time-self.event_time 
-    def start(self):
-        self.start_time=pg.time.get_ticks()
-    def ready(self):
-        self.current_time=pg.time.get_ticks()
-
+        self.event_time=floor((pg.time.get_ticks())/1000) #Creating the cooldown as ticks
+    def get_delta(self):
+        #returns diference in time in seconds from time of generatin of particles
+        return floor((pg.time.get_ticks())/1000)-self.event_time
     
