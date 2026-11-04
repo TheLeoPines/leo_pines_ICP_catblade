@@ -71,7 +71,8 @@ class Player(Sprite):
         self.current_frame = 0
         self.dir = "none"
         self.coins = 0
-        self.jumping=False
+        self.cofric=-0.1 #Another instance for friction for ice and etc
+        self.jumping=False #So when player initialized it would start jumping/to make the variable
         print('player instantiated')
         print(self.pos)
         # self.vx, self.vy=0,0
@@ -102,6 +103,11 @@ class Player(Sprite):
             self.acc.y=PLAYER_SPEED
             # self.vel.y=PLAYER_SPEED
             # self.vy=PLAYER_SPEED
+
+        if keys[pg.K_SPACE]: #Clicking space jumps
+            self.jump()
+
+
         #Check to see if player is moving diagonal
         if self.vel.x!=0 and self.vel.y!=0:
             self.vel*=0.7071
@@ -127,12 +133,34 @@ class Player(Sprite):
         self.idle_frames = [self.spritesheet.get_image(0,0,TILESIZE, TILESIZE),
                             self.spritesheet.get_image(TILESIZE,0,TILESIZE, TILESIZE)
                             ]
+
+    def jump(self):
+        #Can only jump if on a platform
+        self.rect.y += 2
+        hits = pg.sprite.spritecollide(self, self.game.all_walls, False)
+        self.rect.y -= 2
+        if hits and not self.jumping: #Checks whether it should play sound when jumping.
+            self.game.jump_sound.play()
+            self.jumping = True
+            self.vel.y = -PLAYER_JUMP
+
+
+    def is_jumping(self): #Checks if it's jumping and if it collides so you don't double jump
+        if self.vel.y > 0: 
+            hits = pg.sprite.spritecollide(self, self.game.all_walls, False)
+            if hits:
+                self.jumping = False
+
+
+
     #Outputing the position of the player and updating the game
-    def update(self):#Gravity
-        self.acc=vec(0,9.8)
-        self.get_keys()
+    def update(self):
+        self.animate()
+        self.is_jumping()
+        self.acc=vec(0,PLAYER_GRAV)#Gravity
+        self.get_keys()#Process the clicked key
         self.acc.x+=self.vel.x*PLAYER_FRIC
-        self.acc.y+=self.vel.y*PLAYER_FRIC
+        self.acc.y+=self.vel.y*self.cofric
         self.rect.center=self.pos
         self.pos+=self.vel+0.5*self.acc
         self.vel+=self.acc
@@ -144,13 +172,13 @@ class Player(Sprite):
             #Sound will play when coin is hit
             self.game.pickup_snd.play()
             self.game.score += 1
-        self.animate()
         # self.pos+=self.vel*self.game.dt
         self.hit_rect.centerx=self.pos.x
         collide_with_walls(self,self.game.all_walls,'x')
         self.hit_rect.centery=self.pos.y
-        collide_with_walls(self,self.game.all_walls,'y')
-        self.rect.center=self.hit_rect.center
+        if collide_with_walls(self,self.game.all_walls,'y'):
+            self.jumping = False# to make sure to update whether you can jump or not.
+            # self.rect.center=self.hit_rect.center
         
 
 
@@ -259,7 +287,7 @@ class Mob(Sprite):
             self.dir = "none"
             self.last_update = 0
             self.current_frame = 0
-            self.hit_rect = MOB_HIT_RECT
+            self.hit_rect = MOB_HIT_RECT #Mob collides with walls
             print("mob initialized")
             print(self.rect.x)
             print(self.rect.y)

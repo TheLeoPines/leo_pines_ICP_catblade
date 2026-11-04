@@ -19,15 +19,18 @@ Process: cursor position, position of the player, physics.
 
 Output: Graphics - things are drawn, sounds: jump, power up, walking, haptics.
 
-GAME: Snake Game
+GAME: Cat Blade 
 
-GOALS: Eat apples, gain as much apples as possible, and survive.
+GOALS: To win a battle vs a variety of cat vs. cat
+RULES: You cannot go through walls, you bounce between walls
+, cats must take dmg and the cats must collide eventually.
 
-RULES: You cannot go through walls, teleport to apples, or not start from 0.
+FEEDBACK: Will pause the game and potray winning animation once player loses.
+ Will show score ontop before next game begins. Game will end once a player reaches a specific score.
 
-FEEDBACK: Will stop the game and put a collided face one bumping into a wall.
+FREEDOM: You can go any direction you want and choose any cat you want 
+(without any pay wall or experience behind it). The game is free to access.
 
-FREEDOM: You can go any direction you want.
 
 '''
 #Making the class game that uses all the mechanincs to make it
@@ -51,7 +54,8 @@ class Game:
         self.img_dir=path.join(self.game_dir, 'images')
         #Sound handling
         self.snd_dir=path.join(self.game_dir,'audio')
-        self.pickup_snd=pg.mixer.Sound(path.join(self.snd_dir,"Picked_Coin_Echo.wav"))
+        self.pickup_snd=pg.mixer.Sound(path.join(self.snd_dir,"picked_coin_audio.wav"))
+        self.jump_sound=pg.mixer.Sound(path.join(self.snd_dir,"jump_audio.mp3"))
         self.map=Map(path.join(self.game_dir,map))
         #Tries to open a new file unless already made
         try:
@@ -73,7 +77,7 @@ class Game:
     def new(self):
         self.load_data('level1.txt')
         print(self.map.data)
-        #Creates sprite groups to organize and update all game objects together
+        #Creates sprite groups to organize and update all game objects together(super classes)
         self.all_sprites=pg.sprite.Group()
         self.all_walls=pg.sprite.Group()
         self.all_mobs=pg.sprite.Group()
@@ -97,7 +101,7 @@ class Game:
                 if tile=='P':
                     self.player=Player(self,col, row)#For player is map
         #Background music
-        pg.mixer.music.load(path.join(self.snd_dir,"an_untold_legend_v2.wav"))
+        pg.mixer.music.load(path.join(self.snd_dir,"background_audio.wav"))
         pg.mixer.music.play(loops=-1)
 
 
