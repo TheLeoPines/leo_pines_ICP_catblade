@@ -27,7 +27,7 @@ def collide_with_walls(sprite,group,dir):
             if hits[0].rect.centerx<sprite.hit_rect.centerx:
                 #Reposition the player(sprite) to the right side of the wall
                 sprite.pos.x=hits[0].rect.right+sprite.hit_rect.width/2
-            sprite.vel.x=0
+            sprite.vel.x*=-1 #To bounce the player horizontally once colliding
             sprite.hit_rect.centerx=sprite.pos.x
 
     #Checking for y collision 
@@ -43,7 +43,7 @@ def collide_with_walls(sprite,group,dir):
             if hits[0].rect.centery < sprite.hit_rect.centery:
                 #Reposition the player(sprite)to the bottom of the wall
                 sprite.pos.y = hits[0].rect.bottom + sprite.hit_rect.height / 2
-            sprite.vel.y = 0
+            sprite.vel.y*=-1 #To bounce player vertically
             sprite.hit_rect.centery = sprite.pos.y
         
     
@@ -95,8 +95,9 @@ class Player(Sprite):
             self.acc.x=PLAYER_SPEED
             # self.vel.x=PLAYER_SPEED
             # self.vx=PLAYER_SPEED
-        if keys[pg.K_UP] or keys[pg.K_w]:#Clicking w goes up
-            self.acc.y=-PLAYER_SPEED
+        if keys[pg.K_UP] or keys[pg.K_w]:#Clicking w goes up/jumps
+            self.jump()
+            # self.acc.y=-PLAYER_SPEED
             # self.vel.y=-PLAYER_SPEED
             # self.vy=-PLAYER_SPEED
         if keys[pg.K_DOWN] or keys[pg.K_s]:#Clicking s goes down
@@ -124,10 +125,11 @@ class Player(Sprite):
         if now - self.last_update > 350:
             self.last_update = now
             self.current_frame = (self.current_frame + 1) % len(self.idle_frames) #Updating frames from previous frame
-            bottom = self.rect.bottom
+            #Creates parements for rectangle on map when hit
+            center = self.rect.center
             self.image = self.idle_frames[self.current_frame]
             self.rect = self.image.get_rect()
-            self.rect.bottom = bottom
+            self.rect.center=center
     #Position of images
     def load_images(self):
         self.idle_frames = [self.spritesheet.get_image(0,0,TILESIZE, TILESIZE),
@@ -139,10 +141,10 @@ class Player(Sprite):
         self.rect.y += 2
         hits = pg.sprite.spritecollide(self, self.game.all_walls, False)
         self.rect.y -= 2
-        if hits and not self.jumping: #Checks whether it should play sound when jumping.
+        if hits and not self.jumping: #Checks whether it should play sound when jumping and ready to jump.
             self.game.jump_sound.play()
-            self.jumping = True
-            self.vel.y = -PLAYER_JUMP
+            self.jumping =True
+            self.vel.y =-PLAYER_JUMP
 
 
     def is_jumping(self): #Checks if it's jumping and if it collides so you don't double jump
@@ -177,7 +179,7 @@ class Player(Sprite):
         collide_with_walls(self,self.game.all_walls,'x')
         self.hit_rect.centery=self.pos.y
         if collide_with_walls(self,self.game.all_walls,'y'):
-            self.jumping = False# to make sure to update whether you can jump or not.
+            self.jumping=False# to make sure to update whether you can jump or not.
             # self.rect.center=self.hit_rect.center
         
 
