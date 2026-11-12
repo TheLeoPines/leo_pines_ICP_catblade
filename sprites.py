@@ -72,7 +72,8 @@ class Player(Sprite):
         self.dir = "none"
         self.coins = 0
         self.cofric=-0.1 #Another instance for friction for ice and etc
-        self.jumping=False #So when player initialized it would start jumping/to make the variable
+        self.jumping=False #So when player initialized it won't start jumping/to make the variable
+        self.launched=False #So when player initialized it is not launched yet
         print('player instantiated')
         print(self.pos)
         # self.vx, self.vy=0,0
@@ -118,6 +119,18 @@ class Player(Sprite):
         #     self.vx*=0.7071
         #     self.vy*=0.7071
 
+    #Adding a launch function to make aim (I asked Gemini how would I add aim that would launch the player
+    # and it told me to first add a launch method to player then use target_poss paremeter to calculate 
+    #direction from player to mouse)
+    def launch(self, target_poss):
+        #Calculates direction from player to mouse
+        if not self.launched:
+            aim_dir=vec(target_poss)-self.pos
+            #Avoids dividing my zero if mouse is on the position of the player
+            if aim_dir.length()>0:
+                self.vel=aim_dir.normalize()*PLAYER_LAUNCH_SPEED
+                self.launched=True
+            
     #Giving the image animation
     def animate(self):
         # use the time element to get now
