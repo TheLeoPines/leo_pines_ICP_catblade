@@ -120,12 +120,15 @@ class Player(Sprite):
         #     self.vy*=0.7071
 
     #Adding a launch function to make aim (I asked Gemini how would I add aim that would launch the player
-    # and it told me to first add a launch method to player then use target_poss paremeter to calculate 
-    #direction from player to mouse)
+    # and it asked me what type of aiming does it want to result in (like shooting) and I said launch.
+    # It first told me to add a launch method to player then use target_poss paremeter to calculate 
+    #the power of the aim.
+    #
     def launch(self, target_poss):
         #Calculates direction from player to mouse
         if not self.launched:
-            aim_dir=vec(target_poss)-self.pos
+            aim_dir=self.pos-vec(target_poss) #Initially it was flipped but I flipped it
+            #back to change the vectors
             #Avoids dividing my zero if mouse is on the position of the player
             if aim_dir.length()>0:
                 self.vel=aim_dir.normalize()*PLAYER_LAUNCH_SPEED
@@ -171,29 +174,42 @@ class Player(Sprite):
     #Outputing the position of the player and updating the game
     def update(self):
         self.animate()
-        self.is_jumping()
-        self.acc=vec(0,PLAYER_GRAV)#Gravity
-        self.get_keys()#Process the clicked key
-        self.acc.x+=self.vel.x*PLAYER_FRIC
-        self.acc.y+=self.vel.y*self.cofric
+        if not self.launched:
+            self.rect.center=self.pos
+            return
+        # I asked Gemini for the Physics that the game ball vs ball uses of the player when in motion
         self.rect.center=self.pos
-        self.pos+=self.vel+0.5*self.acc
-        self.vel+=self.acc
-        hits=pg.sprite.spritecollide(self,self.game.all_coins,True)
-        if hits:
-            for i in range(100): # Run a loop 100 times to generate multiple particles once a coin is hit.
-                Particle(self.game, hits[0].x, hits[0].y)
-            self.coins += 1
-            #Sound will play when coin is hit
-            self.game.pickup_snd.play()
-            self.game.score += 1
-        # self.pos+=self.vel*self.game.dt
+        self.pos+=self.vel
         self.hit_rect.centerx=self.pos.x
-        collide_with_walls(self,self.game.all_walls,'x')
-        self.hit_rect.centery=self.pos.y
-        if collide_with_walls(self,self.game.all_walls,'y'):
-            self.jumping=False# to make sure to update whether you can jump or not.
-            # self.rect.center=self.hit_rect.center
+        collide_with_walls(self, self.game.all_walls,'x')
+        self.hit_rect.centery = self.pos.y
+        collide_with_walls(self, self.game.all_walls,'y')
+        self.rect.center = self.hit_rect.center
+
+        #Non of these utilities are needed
+        # self.is_jumping()
+        # self.acc=vec(0,PLAYER_GRAV)#Gravity
+        # self.get_keys()#Process the clicked key
+        # self.acc.x+=self.vel.x*PLAYER_FRIC
+        # self.acc.y+=self.vel.y*self.cofric
+        # self.rect.center=self.pos
+        # self.pos+=self.vel+0.5*self.acc
+        # self.vel+=self.acc
+        # hits=pg.sprite.spritecollide(self,self.game.all_coins,True)
+        # if hits:
+        #     for i in range(100): # Run a loop 100 times to generate multiple particles once a coin is hit.
+        #         Particle(self.game, hits[0].x, hits[0].y)
+        #     self.coins += 1
+        #     #Sound will play when coin is hit
+        #     self.game.pickup_snd.play()
+        #     self.game.score += 1
+        # # self.pos+=self.vel*self.game.dt
+        # self.hit_rect.centerx=self.pos.x
+        # collide_with_walls(self,self.game.all_walls,'x')
+        # self.hit_rect.centery=self.pos.y
+        # if collide_with_walls(self,self.game.all_walls,'y'):
+        #     self.jumping=False# to make sure to update whether you can jump or not.
+        #     # self.rect.center=self.hit_rect.center
         
 
 

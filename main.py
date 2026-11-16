@@ -130,8 +130,15 @@ class Game:
                 #To quit the game
                 if self.playing:
                     self.playing = False
+                self.running=False #To fix the aiming preventing the game from running
                     
-                self.running = False
+            #Right mouse click launches the cat towards the mouse position
+            # (I asked gemini how I would register the mouse click with telling me to use pg.MOUSEBUTTONDOWN)
+            #Everything else I just copied using previous structures.
+            if event.type==pg.MOUSEBUTTONDOWN and event.button==1:
+                mouse_pos=pg.mouse.get_pos()
+                self.player.launch(mouse_pos)
+            
     #Text attributes
     def draw_text(self,text,size,color,x,y):
         font_name=pg.font.match_font('arial')
@@ -150,6 +157,14 @@ class Game:
         #The last lines are on the top
         self.screen.fill(BGCOLOR)
         self.all_sprites.draw(self.screen)
+
+
+        #I asked Gemini how would I make an aim indacator disseaper after an event occurs(launches) and
+        #told me to add a if not statement. This also draws the aim indacator so it hits two birds in one stone.
+        if not self.player.launched:
+            mouse_pos=pg.mouse.get_pos()
+            pg.draw.line(self.screen, RED, self.player.rect.center, mouse_pos,3)
+
         #Displays the text and updates when player collects a coin
         self.draw_text(f"Frames per second:{1/self.dt}", 24, WHITE, WIDTH/2, HEIGHT/4)
         self.draw_text(f"Coins:{self.player.coins}", 24, WHITE, WIDTH/2, HEIGHT/7)
