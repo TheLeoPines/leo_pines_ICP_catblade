@@ -46,7 +46,6 @@ def collide_with_walls(sprite,group,dir):
             sprite.vel.y*=-1 #To bounce player vertically
             sprite.hit_rect.centery = sprite.pos.y
         
-    
 
 #The Player class to call it in main.py to produce a player sprite
 class Player(Sprite):
@@ -121,19 +120,22 @@ class Player(Sprite):
 
     #Adding a launch function to make aim (I asked Gemini how would I add aim that would launch the player
     # and it asked me what type of aiming does it want to result in (like shooting) and I said launch.
-    # It first told me to add a launch method to player then use target_poss paremeter to calculate 
-    #the power of the aim.
-    #
-    def launch(self, target_poss):
+    # It told me to add a launch method to player then use target_pos paremeter to calculate 
+    #the power and direction of the aim with giving me a dummy example of it which I had to tweak for it to work into this engine
+    def launch(self, target_pos): 
         #Calculates direction from player to mouse
         if not self.launched:
-            aim_dir=self.pos-vec(target_poss) #Initially it was flipped but I flipped it
-            #back to change the vectors
-            #Avoids dividing my zero if mouse is on the position of the player
+            aim_dir = (vec(target_pos[0], target_pos[1]) - self.pos).normalize() #Initially it was flipped but I flipped it
+            #back to change the vectors- asked Ethan Dang's advice and Mr.Cozort's advice about it during class to use normalize to shrink the vector
+            # exactly to 1 while keeping the angle and vec(target_pos[0], target_pos[1] grabs the x and y values of the mouse position and turns them
+            # into a vector.
+
+            #Avoids dividing by zero if mouse is on the position of the player
             if aim_dir.length()>0:
-                self.vel=aim_dir.normalize()*PLAYER_LAUNCH_SPEED
+                print(aim_dir)#debugs
+                self.vel=aim_dir*PLAYER_LAUNCH_SPEED 
                 self.launched=True
-            
+
     #Giving the image animation
     def animate(self):
         # use the time element to get now
@@ -174,18 +176,31 @@ class Player(Sprite):
     #Outputing the position of the player and updating the game
     def update(self):
         self.animate()
-        if not self.launched:
-            self.rect.center=self.pos
-            return
+        # ethan suggested removing this if block, fixed the aiming during class :)
+        # if not self.launched:
+        #     self.rect.center=self.pos
+        #     return
+
         # I asked Gemini for the Physics that the game ball vs ball uses of the player when in motion
         self.rect.center=self.pos
         self.pos+=self.vel
         self.hit_rect.centerx=self.pos.x
+        #When collides with wall
         collide_with_walls(self, self.game.all_walls,'x')
         self.hit_rect.centery = self.pos.y
         collide_with_walls(self, self.game.all_walls,'y')
         self.rect.center = self.hit_rect.center
 
+        # Collisions with mob (Checks collision using wall collisions checker on top).
+        self.hit_rect.centerx=self.pos.x
+        collide_with_walls(self, self.game.all_mobs,'x')
+        self.hit_rect.centery=self.pos.y
+        collide_with_walls(self, self.game.all_mobs,'y')
+        self.rect.center=self.hit_rect.center
+
+        
+
+           
         #Non of these utilities are needed
         # self.is_jumping()
         # self.acc=vec(0,PLAYER_GRAV)#Gravity

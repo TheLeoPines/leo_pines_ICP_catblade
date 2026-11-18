@@ -130,7 +130,7 @@ class Game:
                 #To quit the game
                 if self.playing:
                     self.playing = False
-                self.running=False #To fix the aiming preventing the game from running
+                self.running=False #To fix the aiming preventing the game from stopping
                     
             #Right mouse click launches the cat towards the mouse position
             # (I asked gemini how I would register the mouse click with telling me to use pg.MOUSEBUTTONDOWN)
