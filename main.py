@@ -19,17 +19,22 @@ Process: cursor position, position of the player, physics.
 
 Output: Graphics - things are drawn, sounds: jump, power up, walking, haptics.
 
+
 GAME: Cat Blade 
 
 GOALS: To win a battle vs a variety of cat vs. cat
-RULES: You cannot go through walls, you bounce between walls
-, cats must take dmg and the cats must collide eventually.
 
-FEEDBACK: Will pause the game and potray winning animation once player loses.
+RULES: You cannot go through walls, you cannot control the movement of the cat, you must bounce between walls, 
+and lastly cats must take dmg and the cats must collide eventually.
+
+FEEDBACK: Will pause the game and potray winning animation once player's health reach 0.
  Will show score ontop before next game begins. Game will end once a player reaches a specific score.
 
 FREEDOM: You can go any direction you want and choose any cat you want 
 (without any pay wall or experience behind it). The game is free to access.
+
+DESIGN GOALS: A mouse controlled aim indicator, a one time launch per round mechanism, Ricochet physics(like the DVD animation or ball vs ball),
+and a health/damage system with a match ending animation or cutscene.
 
 
 '''
@@ -65,7 +70,7 @@ class Game:
 
         except FileExistsError:
             print("File already exists")
-        #Tries to save score to new made file and if nothing to read then set to 0 until updated
+        #Tries to read score to new made file and if nothing to read then set to 0 until updated
         with open(self.game_save_file,'r') as file:
             try:
                 self.high_score=int(file.read())
@@ -109,7 +114,7 @@ class Game:
 
 
 
-    #The process of the screen rendering in the background.
+    #Main game loop-tracks, runs, and draws
     def run(self):
          self.playing=True
          while self.running:
@@ -119,7 +124,7 @@ class Game:
             self.draw()
 
 
-   #Output of the events of the drawings and quits when user is not playing.
+   #Handles user input
     def events(self):
         for event in pg.event.get():
             if event.type == pg.QUIT:
@@ -132,9 +137,9 @@ class Game:
                     self.playing = False
                 self.running=False #To fix the aiming preventing the game from stopping
                     
-            #Right mouse click launches the cat towards the mouse position
-            # (I asked gemini how I would register the mouse click with telling me to use pg.MOUSEBUTTONDOWN)
-            #Everything else I just copied using previous structures.
+            #Mouse click launches the cat towards the mouse position
+            # (I asked gemini how I would register a mouse click in py game and it suggested me to use pg.MOUSEBUTTONDOWN and event.button==1)
+            # So, I connected it to pg.mouse.get_pos() and self.player.launch() and it works!
             if event.type==pg.MOUSEBUTTONDOWN and event.button==1:
                 mouse_pos=pg.mouse.get_pos()
                 self.player.launch(mouse_pos)
@@ -148,10 +153,10 @@ class Game:
         text_rect.midtop=(x,y)
         self.screen.blit(text_surface,text_rect)
     
-    #Calculates next frame it renders and updates the screen with the new frame.
+    #Calculates next frame it renders and updates the screen with the new frame. Also updates all sprites attributes.
     def update(self):
         self.all_sprites.update()
-    #Output of filling out the sprites with color
+    #Output of filling out the sprites with color and drawing/rendering the sprites/screen
     def draw(self):
         #This order matters as the first things are on the botton because they are the first to be drawn
         #The last lines are on the top

@@ -4,6 +4,7 @@ from math import floor #Importing math
 
 #Making a map class to make the map when called in main.py
 class Map:
+    #Reads the level1.txt file and calculates map dimensions in pixels...pretty cool, treating it as a list.
     def __init__(self,filename):
         self.data=[]
         with open(filename, 'rt') as f:
@@ -14,12 +15,12 @@ class Map:
         self.width=self.tilewidth * TILESIZE
         self.height=self.tileheight*TILESIZE
         print('map instantiated')
-#Making a Spritesheet class to convert images to png when called in main.py
+#Making a Spritesheet class to convert images to png when called in main.py for specific sprite frames
 class Spritesheet:
     #Loading image and converts png to something pygame can use
     def __init__(self,filename):
         self.spritesheet=pg.image.load(filename).convert()
-
+    #Crops sprite sheet and returns a single frame to slice it in sprite.py
     def get_image(self,x,y,width,height):
         image=pg.Surface((width,height))
         image.blit(self.spritesheet,(0,0),(x,y,width,height))

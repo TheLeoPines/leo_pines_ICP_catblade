@@ -5,7 +5,7 @@ from utils import * #Importing from a different made file to access on this file
 
 from random import randint #Importing randomizer
 
-from os import path #using windows terminal
+from os import path #using windows terminal to build file paths (so I can access images and audios and such.)
 
 vec=pg.math.Vector2 #Velocity calculations
 
@@ -13,6 +13,7 @@ vec=pg.math.Vector2 #Velocity calculations
 def collide_hit_rect(one,two):
      return one.hit_rect.colliderect(two.rect)
 
+#Collision and reposition of the sprite
 def collide_with_walls(sprite,group,dir):
     #Check for x collision
     if dir=='x':
@@ -78,7 +79,8 @@ class Player(Sprite):
         # self.vx, self.vy=0,0
         # self.x=x*TILESIZE
         # self.y=y*TILESIZE
-
+    
+    #Reads keyboard input and results in movement (which my game specifically does not need...for the movement part at least)
     def get_keys(self):
         #reset v to zero
         #Listen for events specific to keys
@@ -118,25 +120,25 @@ class Player(Sprite):
         #     self.vx*=0.7071
         #     self.vy*=0.7071
 
-    #Adding a launch function to make aim (I asked Gemini how would I add aim that would launch the player
-    # and it asked me what type of aiming does it want to result in (like shooting) and I said launch.
-    # It told me to add a launch method to player then use target_pos paremeter to calculate 
-    #the power and direction of the aim with giving me a dummy example of it which I had to tweak for it to work into this engine
+    #Adding a launch function to make aim (I asked Gemini how would I add aim in pygame that would launch the player
+    # and it told me to get the direction from the player's mouse, calculate a launch vector, and apply physics on the player.
+    #Originally the direction and vectors was wrong so it reccomended me to use normalize so it can keep a constant (shrinked) vector 
+    #of 1. Then after I just adapted it to vec and self.pos)
     def launch(self, target_pos): 
         #Calculates direction from player to mouse
         if not self.launched:
-            aim_dir = (vec(target_pos[0], target_pos[1]) - self.pos).normalize() #Initially it was flipped but I flipped it
-            #back to change the vectors- asked Ethan Dang's advice and Mr.Cozort's advice about it during class to use normalize to shrink the vector
-            # exactly to 1 while keeping the angle and vec(target_pos[0], target_pos[1] grabs the x and y values of the mouse position and turns them
-            # into a vector.
+            # Converts mouse (x, y) into a vector and points from player to mouse (Target-Start).
+            #Originally was reserved and only target_pos but Mr.Cozort adviced me to reverse it and Ethan Dang adviced
+            #me to treat the target_pos as coordinates so when converting them to vectors you can easily calculate the vector subtraction.
+            aim_dir = (vec(target_pos[0], target_pos[1]) - self.pos).normalize() 
 
             #Avoids dividing by zero if mouse is on the position of the player
             if aim_dir.length()>0:
-                print(aim_dir)#debugs
+                print(aim_dir)#debugged aim_dir
                 self.vel=aim_dir*PLAYER_LAUNCH_SPEED 
                 self.launched=True
 
-    #Giving the image animation
+    #Giving the image animation (cycling)
     def animate(self):
         # use the time element to get now
         now = pg.time.get_ticks()
@@ -148,12 +150,13 @@ class Player(Sprite):
             self.image = self.idle_frames[self.current_frame]
             self.rect = self.image.get_rect()
             self.rect.center=center
-    #Position of images
+    #Position of spritesheet (spritesheet is incomplete right now so this is a place holder for player only)
     def load_images(self):
         self.idle_frames = [self.spritesheet.get_image(0,0,TILESIZE, TILESIZE),
                             self.spritesheet.get_image(TILESIZE,0,TILESIZE, TILESIZE)
                             ]
-
+        
+    #Gives player ability to jump on certain conditions (jump not needed for my game)
     def jump(self):
         #Can only jump if on a platform
         self.rect.y += 2
@@ -176,7 +179,9 @@ class Player(Sprite):
     #Outputing the position of the player and updating the game
     def update(self):
         self.animate()
-        # ethan suggested removing this if block, fixed the aiming during class :)
+        # Ethan suggested removing this if block as he noticed it's already called somewhere else and I didn't realize that it was skipping
+        # self.hit._rect updates and collisions ,fixing the aiming during class but now always the mob to collide with the player 
+        # #before it launches... :)))
         # if not self.launched:
         #     self.rect.center=self.pos
         #     return
@@ -185,13 +190,14 @@ class Player(Sprite):
         self.rect.center=self.pos
         self.pos+=self.vel
         self.hit_rect.centerx=self.pos.x
+
         #When collides with wall
         collide_with_walls(self, self.game.all_walls,'x')
         self.hit_rect.centery = self.pos.y
         collide_with_walls(self, self.game.all_walls,'y')
         self.rect.center = self.hit_rect.center
 
-        # Collisions with mob (Checks collision using wall collisions checker on top).
+        # Collisions with mob (Checks collision using wall collision method).
         self.hit_rect.centerx=self.pos.x
         collide_with_walls(self, self.game.all_mobs,'x')
         self.hit_rect.centery=self.pos.y
@@ -201,7 +207,7 @@ class Player(Sprite):
         
 
            
-        #Non of these utilities are needed
+        #Non of these utilities are needed so we won't call their functions
         # self.is_jumping()
         # self.acc=vec(0,PLAYER_GRAV)#Gravity
         # self.get_keys()#Process the clicked key
@@ -281,7 +287,7 @@ class Particle(Sprite):
 
 #Making a coin class since why not:
 class Coin(Sprite):
-     #Making a Mob class to input a coin sprite when called in main.py
+     #Making a Coin class to input a coin sprite when called in main.py
      def __init__(self, game, x, y):
         #Making the coin group
         self.groups = game.all_sprites, game.all_coins
@@ -313,7 +319,7 @@ class Mob(Sprite):
             self.image=pg.Surface((TILESIZE,TILESIZE))
             self.image.fill(RED)
             self.rect=self.image.get_rect()
-            #Speed and position of the mob
+            #Speed, position, and direction of the mob and enviroments that effect the mob
             self.speed=1
             self.vx, self.vy=500,0
             self.x=x*TILESIZE
@@ -337,6 +343,7 @@ class Mob(Sprite):
             print("mob initialized")
             print(self.rect.x)
             print(self.rect.y)
+    #Cycles mob animation frames (to animate the mob basically)
     def animate(self):
         # use the time element to get now
         now = pg.time.get_ticks()
@@ -347,7 +354,8 @@ class Mob(Sprite):
             self.image = self.idle_frames[self.current_frame]
             self.rect = self.image.get_rect()
             self.rect.bottom = bottom
-            #Position of images
+            
+    #Gets the animations from the spritesheet (which is incomplete right now so these are place holders for the mob)
     def load_images(self):
         self.idle_frames = [self.evilcat.get_image(0,0,TILESIZE, TILESIZE), #Defines spritesheet
                             self.evilcat.get_image(TILESIZE,0,TILESIZE, TILESIZE) #Defines spritesheet
