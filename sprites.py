@@ -74,6 +74,8 @@ class Player(Sprite):
         self.cofric=-0.1 #Another instance for friction for ice and etc
         self.jumping=False #So when player initialized it won't start jumping/to make the variable
         self.launched=False #So when player initialized it is not launched yet
+        self.hp=PLAYER_HP #Gives player health when initialized
+        self.last_hit=0 #Cooldown to prevent hit lasting forever,depleting the sprites hp.
         print('player instantiated')
         print(self.pos)
         # self.vx, self.vy=0,0
@@ -190,6 +192,27 @@ class Player(Sprite):
         self.rect.center=self.pos
         self.pos+=self.vel
         self.hit_rect.centerx=self.pos.x
+
+        #Made it similar to jump function but also uses timer class from utils and more specifically time from py game
+        #to make sure the collision starts the dmg but goes on cooldown/stops the dmg on the last hit.
+        mob_hits=pg.sprite.spritecollide(self, self.game.all_mobs, False, collide_hit_rect)
+        if mob_hits:
+            now=pg.time.get_ticks()
+            if now-self.last_hit>500:
+                self.last_hit=now
+                #I plan to eventually change collision to projectile as it will just result in a draw ALL the time...unless I do it where it's
+                #only the first one in the collision actually takes the dmg.
+                self.hp-=COLLISION_DMG#The actual damage when collides
+                mob_hits[0].hp-=COLLISION_DMG #Same for mob but mob_hits is a list so makes sense for it to be the first hit.
+                self.game.pickup_snd.play()#Uses coin sound but can easily replace to make it sound like a collide sound or bonk or wtv.
+
+            #Checks if player or mob is defeated
+            if self.hp<=0:
+                self.kill()
+            if mob_hits[0].hp<=0:
+                mob_hits[0].kill()
+
+
 
         #When collides with wall
         collide_with_walls(self, self.game.all_walls,'x')
@@ -340,6 +363,7 @@ class Mob(Sprite):
             self.last_update = 0
             self.current_frame = 0
             self.hit_rect = MOB_HIT_RECT #Mob collides with walls
+            self.hp=MOB_HP #Gives mob health when initialized
             print("mob initialized")
             print(self.rect.x)
             print(self.rect.y)

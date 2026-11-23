@@ -170,6 +170,19 @@ class Game:
             mouse_pos=pg.mouse.get_pos()
             pg.draw.line(self.screen, RED, self.player.rect.center, mouse_pos,3)
 
+
+        #Asked Gemini how I would make the hp indicator follow the ball and it told me to just center it using a if and for statement with five 
+        #parameters for the draw_text:HP, font, color, x position, and y position. The rest I just integrated myself.
+        if self.player.hp>0:
+            self.draw_text(str(self.player.hp), 16, WHITE, self.player.rect.centerx, self.player.rect.centery-8)
+
+        for mob in self.all_mobs: #sprite group/super class
+            if mob.hp>0:
+                self.draw_text(str(mob.hp),16, WHITE, mob.rect.centerx, mob.rect.centery-8)
+
+
+        
+
         #Displays the text and updates when player collects a coin
         self.draw_text(f"Frames per second:{1/self.dt}", 24, WHITE, WIDTH/2, HEIGHT/4)
         self.draw_text(f"Coins:{self.player.coins}", 24, WHITE, WIDTH/2, HEIGHT/7)
