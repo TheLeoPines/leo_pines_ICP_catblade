@@ -204,6 +204,7 @@ class Player(Sprite):
                 #only the first one in the collision actually takes the dmg.
                 self.hp-=COLLISION_DMG#The actual damage when collides
                 mob_hits[0].hp-=COLLISION_DMG #Same for mob but mob_hits is a list so makes sense for it to be the first hit.
+                mob_hits[0].vel*=-1 #Mob bounces backwards after collision like player
                 self.game.pickup_snd.play()#Uses coin sound but can easily replace to make it sound like a collide sound or bonk or wtv.
 
             #Checks if player or mob is defeated
@@ -350,13 +351,12 @@ class Mob(Sprite):
             self.rect.x=self.x
             self.rect.y=self.y
             self.speed = 100
-            self.vel = vec(0,0)
+            self.vel = vec(MOB_LAUNCH_SPEED,0).rotate(randint(0,360)) #So the direction is random at 360 degrees unless I make it so it's multiplayer
             self.pos = vec(x*TILESIZE,y*TILESIZE)
             self.x = x*TILESIZE
             self.y = y*TILESIZE
             self.rect.x = self.x
             self.rect.y = self.y
-            self.vel=vec(0,0)
             self.coins=0
             self.pos=vec(x*TILESIZE,y*TILESIZE)
             self.dir = "none"
@@ -415,16 +415,17 @@ class Mob(Sprite):
         # self.rect.x=self.x
         # self.rect.y=self.y
         self.animate()
-        #Calling Chase Method:
-        if self.game.player:
-            self.chase(self.game.player)
-            self.rect.center = self.pos
-            self.pos += self.vel * self.game.dt
-            self.hit_rect.centerx = self.pos.x
-            collide_with_walls(self, self.game.all_walls, 'x')
-            self.hit_rect.centery = self.pos.y
-            collide_with_walls(self, self.game.all_walls, 'y')
-            self.rect.center = self.hit_rect.center
+        #Mob waits until player is ready...or at least when it's initialized which is fine for now
+        if not self.game.player:
+            self.rect.center=self.pos
+            return
+        # self.chase(self.game.player) #Chase is not needed anymore so no need to call it.
+        self.pos += self.vel
+        self.hit_rect.centerx = self.pos.x
+        collide_with_walls(self, self.game.all_walls, 'x')
+        self.hit_rect.centery = self.pos.y
+        collide_with_walls(self, self.game.all_walls, 'y')
+        self.rect.center = self.hit_rect.center
             
         
 
