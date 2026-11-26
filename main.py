@@ -117,7 +117,7 @@ class Game:
     #Main game loop-tracks, runs, and draws
     def run(self):
          self.playing=True
-         while self.running:
+         while self.playing: #so it ends the round without closing the window
             self.dt=self.clock.tick(FPS)/1000
             self.events()
             self.update()
@@ -156,12 +156,27 @@ class Game:
     #Calculates next frame it renders and updates the screen with the new frame. Also updates all sprites attributes.
     def update(self):
         self.all_sprites.update()
+        #Checks if match it over and under certain conditions you win, lose, or tie/draw with score going up/down.
+        if self.player.hp<=0 and len(self.all_mobs)==0: #Debugged and found out its been treating it as a group rather than a number. So len works.
+            self.result="TIE!"
+            self.playing=False
+        elif len(self.all_mobs)==0:
+            self.result="WINNER CHICKEN DINNER!"
+            self.score+=1
+            self.playing=False
+        elif self.player.hp<=0:
+            self.result="Uh... sorry pal..."
+            self.score-=1
+            self.playing=False
+        
+
     #Output of filling out the sprites with color and drawing/rendering the sprites/screen
     def draw(self):
         #This order matters as the first things are on the botton because they are the first to be drawn
         #The last lines are on the top
         self.screen.fill(BGCOLOR)
         self.all_sprites.draw(self.screen)
+        death_blinker=(pg.time.get_ticks()//200)%2==0 #Every 200ms or longer depending on whether I want to give the user epilepsy...which I don't...
 
 
         #I asked Gemini how would I make an aim indacator disseaper after an event occurs(launches) and
@@ -172,9 +187,16 @@ class Game:
 
 
         #Asked Gemini how I would make the hp indicator follow the ball and it told me to just center it using a if and for statement with five 
-        #parameters for the draw_text:HP, font, color, x position, and y position. The rest I just integrated myself.
+        #parameters for the draw_text:HP, font, color, x position, and y position. The rest I just integrated myself. Same goes for other indicators
         if self.player.hp>0:
-            self.draw_text(str(self.player.hp), 16, WHITE, self.player.rect.centerx, self.player.rect.centery-8)
+            if self.player.hp<=25 and death_blinker:
+                pg.draw.rect(self.screen, RED, self.player.rect, 4) #Death_blinker border
+                self.draw_text(str(self.player.hp), 16, RED, self.player.rect.centerx, self.player.rect.centery-8)
+            else:
+                self.draw_text(str(self.player.hp), 16, WHITE, self.player.rect.centerx, self.player.rect.centery-8)
+        
+
+
 
         for mob in self.all_mobs: #sprite group/super class
             if mob.hp>0:
@@ -190,6 +212,23 @@ class Game:
         self.draw_text(f"High Score:{self.high_score}", 24, WHITE, WIDTH/2, HEIGHT/12)
         pg.display.flip()
 
+    #Pauses the game, shows the result, and waits for any key press to restart:
+    def results(self):
+        if not self.running: #I learned that I had to use this in order to stop the game once user presses x. Thanks Cs50 ai.
+            return
+        self.draw_text(self.result, 64, WHITE, WIDTH/2, HEIGHT/3)
+        self.draw_text("Press any key to play again", 24, WHITE, WIDTH/2, HEIGHT/2)
+        pg.display.flip()
+        waiting = True
+        #Asked gemini how to make a pause/restart loop in pygame and reccomended me a waiting flag and events which I just implemented to this code base
+        while waiting:
+            self.clock.tick(FPS)
+            for event in pg.event.get():
+                if event.type==pg.QUIT:
+                    waiting=False
+                    self.running=False
+                if event.type==pg.KEYUP or event.type==pg.MOUSEBUTTONUP:
+                    waiting=False
    
 #This runs the game
 if __name__ == "__main__":
@@ -199,5 +238,6 @@ if __name__ == "__main__":
 while g.running:
      g.new()
      g.run()
+     g.results()
 
 
